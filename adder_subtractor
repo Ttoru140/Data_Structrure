@@ -1,0 +1,40 @@
+module master_jk(q,qbar,j,k,clr,clk);
+input j,k,clr,clk;
+output q,qbar;
+wire a,b,c,d,e,f;
+nand(a,j,clk,qbar,clr);
+nand(b,k,q,clk);
+nand(c,d,a);
+nand(d,b,c,clr);
+
+wire clkbar;
+not(clkbar,clk);
+
+nand(e,c,clkbar);
+nand(f,d,clkbar);
+nand(q,e,qbar);
+nand(qbar,q,f,clr);
+
+endmodule
+
+module synchronous_up_down_counter(q,q_bar,clr,clk,mode);
+output [2:0]q,q_bar;
+input clr,clk,mode;
+
+wire mode_bar,and1,and2,or1,and3,and4,or2;
+not(mode_bar,mode);
+
+master_jk f1(q[0],q_bar[0],1,1,clr,clk);
+and(and1 ,q[0],mode_bar);
+and(and2,q_bar[0],mode);
+or(or1,and1,and2);
+
+master_jk f2(q[1],q_bar[1],or1,or1,clr,clk);
+and(and3,and1,q[1]);
+and(and4,and2,q_bar[1]);
+or(or2,and3,and4);
+
+master_jk f3(q[2],q_bar[2],or2,or2,clr,clk);
+endmodule
+
+
